@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react';
 import * as C from './App.styles.ts';
-import { getAll } from './services/photos.ts';
+import * as Photos from './services/photos.ts';
 import { Photo } from './types/Photo.ts';
 
 const App = () => {
 
-  const [list, setList] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [photo, setPhoto] = useState<Photo[]>([]);
 
   useEffect(()=>{
-    async function getAllPhotos(){
-      const listPhotos: Photo[] = await getAll();
-      setList(listPhotos);
+    const getPhotos = async () =>{
+      setLoading(true);
+
+      const photos = await Photos.getAll();
+      setPhoto(photos);
+
+      setLoading(false);
     }
 
-    getAllPhotos();
+    getPhotos();
   },[]);
 
   return (
@@ -22,11 +27,22 @@ const App = () => {
         <C.Header>Galeria de fotos</C.Header>
         {/* Area de upload */}
 
-        {list.map((item)=>{
-          return(
-              <h1>{item.name}</h1>
-          );
-        })}
+        {loading &&
+          <C.ScreenWarning>
+            <div className='emoji'>✋</div>
+            <div>Loading...</div>
+          </C.ScreenWarning>
+        }
+
+        {!loading && photo.length > 0 &&
+          <C.PhotoList>
+            {photo.map((item, index)=>(
+              <div>
+                {item.name}
+              </div>
+            ))}
+          </C.PhotoList>
+        }
       </C.Area>
     </C.Container>
   )
