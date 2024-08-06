@@ -3,20 +3,25 @@ import { storage } from "../libs/firebase";
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
 
 export const getAll = async () =>{
-    const list: Photo[] = [];
-
-    const imagesFolder = ref(storage, "Images");
-    const photoList = await listAll(imagesFolder);
+    try{
+        const list: Photo[] = [];
     
-    for(const i in photoList.items){
+        const imagesFolder = ref(storage, "Images");
+        const photoList = await listAll(imagesFolder);
         
-        const photoUrl = await getDownloadURL(photoList.items[i]);
-
-        list.push({
-            name: photoList.items[i].name,
-            url: photoUrl,
-        })
+        for(const i in photoList.items){
+            
+            const photoUrl = await getDownloadURL(photoList.items[i]);
+    
+            list.push({
+                name: photoList.items[i].name,
+                url: photoUrl,
+            })
+        }
+    
+        return list;
+    } catch(error){
+        console.error("There is an error", error);
+        return [];
     }
-
-    return list;
 }
